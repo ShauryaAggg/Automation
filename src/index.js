@@ -1,5 +1,6 @@
 require('dotenv').config()
 const newman = require('newman')
+const { program } = require('commander')
 
 const utils = require('./utils')
 
@@ -26,13 +27,17 @@ async function index() {
         })
     })
 
-    console.log(secretList)
-
     envVars = [
         {
             enabled: true,
             key: "file_path",
             value: filePath,
+            type: "text"
+        },
+        {
+            enabled: true,
+            key: "base_url",
+            value: "https://stagthanosweb.1mg.com",
             type: "text"
         },
         ...secretList
