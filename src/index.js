@@ -15,15 +15,18 @@ const csv_object = [
 
 async function index() {
     const { filePath } = utils.convertToCSV(csv_object, `./temp/b2c-order-${new Date()}.csv`)
-    const [{ headers }, { cookies }] = await utils.getSecrets(['headers', 'cookies'], pathPrefix = "secret/data")
+    const secrets = utils.getSecrets(['headers', 'cookies'], pathPrefix = "secret/data")
 
-    const cookieList = Object.entries(cookies).map(([k, v]) => {
-        return { enabled: true, key: k, value: v, type: "text" }
+    // Convert from Array of (Object of Object) to Array of Object 
+    const secretList = secrets.flatMap((secret) => {
+        return Object.entries(secret).flatMap(([_, v]) => {
+            return Object.entries(v).flatMap(([key, value]) => {
+                return { enabled: true, key: key, value: value, type: "text" }
+            })
+        })
     })
 
-    const headerList = Object.entries(headers).map(([k, v]) => {
-        return { enabled: true, key: k, value: v, type: "text" }
-    })
+    console.log(secretList)
 
     envVars = [
         {
@@ -32,8 +35,7 @@ async function index() {
             value: filePath,
             type: "text"
         },
-        ...cookieList,
-        ...headerList
+        ...secretList
     ]
 
     newman.run({
