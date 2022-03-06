@@ -10,7 +10,6 @@ const path = require('path')
 exports.exportFile = (filePath, data) => {
     if (!fs.existsSync(__dirname + filePath)) {
         const parent = path.dirname(filePath)
-        console.log(parent)
         fs.mkdirSync(parent, { recursive: true })
     }
 
