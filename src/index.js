@@ -15,7 +15,7 @@ const csv_object = [
 
 async function index() {
     const { filePath } = utils.convertToCSV(csv_object, `./temp/b2c-order-${new Date()}.csv`)
-    const secrets = utils.getSecrets(['headers', 'cookies'], pathPrefix = "secret/data")
+    const secrets = await utils.getSecrets(['headers', 'cookies'], pathPrefix = "secret/data")
 
     // Convert from Array of (Object of Object) to Array of Object 
     const secretList = secrets.flatMap((secret) => {
