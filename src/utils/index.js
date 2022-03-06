@@ -1,5 +1,6 @@
 module.exports = {
     ...require('./csv'),
     ...require('./file'),
-    ...require('./vault')
+    ...require('./vault'),
+    ...require('./cmdArgs')
 }

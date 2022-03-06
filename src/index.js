@@ -1,6 +1,5 @@
 require('dotenv').config()
 const newman = require('newman')
-const { program } = require('commander')
 
 const utils = require('./utils')
 
@@ -15,6 +14,7 @@ const csv_object = [
 
 
 async function index() {
+    const opts = utils.fetchCliArgs()
     const { filePath } = utils.convertToCSV(csv_object, `./temp/b2c-order-${new Date()}.csv`)
     const secrets = await utils.getSecrets(['headers', 'cookies'], pathPrefix = "secret/data")
 
@@ -44,7 +44,7 @@ async function index() {
     ]
 
     newman.run({
-        collection: "/Users/shaurya/Documents/testing/Node-Automate/Odin.postman_collection.json",
+        collection: opts.file,
         envVar: envVars,
         reporters: 'cli'
     }, (error) => {
