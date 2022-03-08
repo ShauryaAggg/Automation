@@ -8,11 +8,11 @@ const file = require("./file")
  * @param {String} filePath 
  *        (Optional) Path to write the file to
  * 
- * @returns {Object} data 
+ * @returns {Object} data
  *          Data corresponding to the CSV file
- * @returns {String} data.data 
+ * @returns {String} data.data
  *          String parsed from Object to CSV 
- * @returns {String} data.filePath 
+ * @returns {String} data.filePath
  *          Path of the file
  */
 exports.convertToCSV = (data, filePath = "") => {
