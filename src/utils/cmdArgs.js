@@ -1,7 +1,7 @@
 const { program } = require('commander')
 
 exports.fetchCliArgs = () => {
-    program.option(
+    program.requiredOption(
         '-f, --file <value>',
         'Path to postman collection file',
     )
