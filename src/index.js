@@ -65,7 +65,12 @@ async function index() {
     newman.run({
         collection: opts.file,
         envVar: envVars,
-        reporters: 'cli'
+        reporters: ['cli', 'htmlextra'],
+        reporter: {
+            htmlextra: {
+                export: './newman/index.html'
+            }
+        }
     }, (error) => {
         if (error) throw error
         console.log("success")
