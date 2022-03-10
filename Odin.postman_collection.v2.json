@@ -1,0 +1,725 @@
+{
+	"info": {
+		"_postman_id": "ea05319c-bf9b-4732-97e6-4e51fc2fda2d",
+		"name": "Odin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateB2COrder",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Main\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.have.jsonBody(\"data\")",
+							"",
+							"    json = pm.response.json()",
+							"    sales_order_id = json.data.sales_order.id",
+							"    source_order_id = json.data.sales_order.source_order_id",
+							"    pm.environment.set(\"sales_order_id\", sales_order_id)",
+							"    pm.environment.set(\"source_order_id\", source_order_id)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/shaurya/Downloads/b2c_order_format.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/b2c_clients/{{customer_id}}/sales_orders/upload",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"b2c_clients",
+						"{{customer_id}}",
+						"sales_orders",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetPickerId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test Picker\", () => {",
+							"    pm.response.to.have.status(200)",
+							"",
+							"    json = pm.response.json()",
+							"    picker_id = json.data[0].id ",
+							"    // get the vendor_id from the response and set it as a variable",
+							"    pm.environment.set(\"picker_id\", picker_id)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base_url}}/api/users?group=picker&name_filter={{picker_name}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "group",
+							"value": "picker"
+						},
+						{
+							"key": "name_filter",
+							"value": "{{picker_name}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetSalesOrders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Sales Orders\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders?picker_id={{picker_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders"
+					],
+					"query": [
+						{
+							"key": "picker_id",
+							"value": "{{picker_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetResouceOrderId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Fetch Picking Orders and Resource Lock ID\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.have.jsonBody(\"data\")",
+							"",
+							"    json = pm.response.json()",
+							"    // Picking the first resource_lock_id from the response (which should be the one we are looking for)",
+							"    resource_lock_id = json.data.sales_orders[0].resource_lock_id",
+							"    pm.environment.set(\"resource_lock_id\", resource_lock_id)",
+							"",
+							"    warning = json.data.warning_message",
+							"    pm.environment.set(\"warning_message\", warning)",
+							"    if (warning == null) {",
+							"        // If warning in NULL, skip ReleaseResourceLock",
+							"        postman.setNextRequest(\"GeneratePicklist\")",
+							"    } else {",
+							"        postman.setNextRequest(\"ReleaseResourceLock\")",
+							"    }",
+							"    console.log(resource_lock_id)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sales_order\": {\n        \"source_order_ids\": \"{{source_order_id}}\",\n        \"source\": \"B2C\",\n        \"job\": {\n            \"type\": \"picklist_generate\"\n        },\n        \"status\": [\n            \"picking\",\n            \"picklist_generated\"\n        ],\n        \"rapid\": false\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/assign_orders?per_page={{per_page}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"assign_orders"
+					],
+					"query": [
+						{
+							"key": "per_page",
+							"value": "{{per_page}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ReleaseResourceLock",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Release Resource Lock\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    console.log(\"Request Done, Released\")",
+							"",
+							"    if (pm.environment.get(\"warning_message\") != null) {",
+							"        // If previous warning was not NULL, fetch the {{resource_order_id}} again",
+							"        postman.setNextRequest(\"GetResourceOrderId\")",
+							"    } else {",
+							"        postman.setNextRequest(\"GeneratePicklist\")",
+							"    }",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ids\": [\n        {{resource_lock_id}}\n    ],\n    \"resource_type\": \"sales_order\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/resource_locks",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"resource_locks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GeneratePicklist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test Picklist Generation\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.have.jsonBody(\"data\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"digital\": false,\n    \"ids\": [{{sales_order_id}}],\n    \"picker_id\": {{picker_id}},\n    \"picker_name\": \"{{picker_name}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/generate_picklist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"generate_picklist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MarkQC",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test Mark Quality Check\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sales_order_ids\": [\n        {{sales_order_id}}\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/mark_quality_check",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"mark_quality_check"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "StartQC",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test Start Quality Check\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.have.jsonBody(\"data\")",
+							"",
+							"    json = pm.response.json()",
+							"    lock_id = json.data.resource_lock_id",
+							"    pm.environment.set(\"resource_lock_id\", lock_id)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"is_scanned\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/{{sales_order_id}}/start_quality_check",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"{{sales_order_id}}",
+						"start_quality_check"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateInvoice",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Generate Invoice\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.have.jsonBody(\"data\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/{{sales_order_id}}/invoices",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"{{sales_order_id}}",
+						"invoices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MarkPacking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Mark Packing\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"lock_id\": {{resource_lock_id}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/{{sales_order_id}}/mark_packing",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"{{sales_order_id}}",
+						"mark_packing"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MarkPackaged",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Mark Packaged\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-1mg-csrf",
+						"value": "{{x-1mg-csrf}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session={{session}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "session.sig={{session.sig}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sales_order_ids\": [\n        {{sales_order_id}}\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/sales_orders/mark_packaged",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sales_orders",
+						"mark_packaged"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "customer_id",
+			"value": "29",
+			"type": "default",
+			"disabled": true
+		}
+	]
+}
