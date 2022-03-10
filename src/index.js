@@ -1,5 +1,6 @@
 require('dotenv').config()
 const newman = require('newman')
+const fs = require('fs')
 
 const utils = require('./utils')
 
@@ -40,6 +41,24 @@ async function index() {
             value: "https://stagthanosweb.1mg.com",
             type: "text"
         },
+        {
+            enabled: true,
+            key: "customer_id",
+            value: 28,
+            type: "text"
+        },
+        {
+            enabled: true,
+            key: "picker_name",
+            value: "Shaurya Agarwal",
+            type: "text"
+        },
+        {
+            enabled: true,
+            key: "per_page",
+            value: 1,
+            type: "text"
+        },
         ...secretList
     ]
 
@@ -50,6 +69,17 @@ async function index() {
     }, (error) => {
         if (error) throw error
         console.log("success")
+    }).on('request', (error, summary) => {
+        try {
+            data = summary.response.json()
+            fs.writeFileSync(`./response/data-${(summary.request?.url?.path).join('-')}.json`, JSON.stringify(data))
+            console.log(data)
+        } catch (error) {
+            console.log("Error: ", error)
+        }
+    }).on('exception', (error, summary) => {
+        console.log(error)
+        console.log(summary)
     })
 }
 
