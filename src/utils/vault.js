@@ -17,9 +17,7 @@ exports.getSecrets = async (paths, pathPrefix = "") => {
         return { [path]: secret }
     })
 
-    const secrets = await Promise.all(promises).then((secret) => {
-        return secret
-    })
+    const secrets = await Promise.all(promises).then((secret) => secret)
 
-    return secrets
+    return Object.assign({}, ...secrets)
 }

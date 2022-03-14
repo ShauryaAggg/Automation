@@ -4,28 +4,16 @@ const fs = require('fs')
 
 const utils = require('./utils')
 
-const csv_object = [
-    {
-        "SKU ID": "156242",
-        "SKU Name": "Dexorange Capsule - bottle (30)",
-        "Quantity": 8,
-        "Discount% on MRP": 10
-    }
-]
-
-
 async function index() {
     const opts = utils.fetchCliArgs()
-    const { filePath } = utils.convertToCSV(csv_object, `./temp/b2c-order-${new Date()}.csv`)
-    const secrets = await utils.getSecrets(['headers', 'cookies'], pathPrefix = "secret/data")
+    const { files, ...secrets } = await utils.getSecrets(['headers', 'cookies', 'files'], pathPrefix = "secret/data")
+    const { filePath } = utils.convertToCSV(files["create_order_file"], `./temp/b2c-order-${new Date()}.csv`)
 
-    // Convert from Array of (Object of Object) to Array of Object 
-    const secretList = secrets.flatMap((secret) => {
-        return Object.entries(secret).flatMap(([_, v]) => {
-            return Object.entries(v).flatMap(([key, value]) => {
-                return { enabled: true, key: key, value: value, type: "text" }
-            })
-        })
+    const secretList = Object.entries(
+        // Converting Nested Object to 1D Object
+        Object.assign({}, ...Object.values(secrets).map((secret) => secret))
+    ).map(([key, value]) => { // Adding `enabled`, `type` properties to each object
+        return { enabled: true, key: key, value: value, type: 'text' }
     })
 
     envVars = [
@@ -44,7 +32,7 @@ async function index() {
         {
             enabled: true,
             key: "customer_id",
-            value: 28,
+            value: 31, // Test Customer Created
             type: "text"
         },
         {
@@ -65,7 +53,7 @@ async function index() {
     newman.run({
         collection: opts.file,
         envVar: envVars,
-        reporters: ['cli', 'htmlextra'],
+        reporters: ['cli', 'htmlextra', 'json'],
         reporter: {
             htmlextra: {
                 export: './newman/index.html'
