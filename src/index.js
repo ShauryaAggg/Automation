@@ -12,9 +12,7 @@ async function index() {
     const secretList = Object.entries(
         // Converting Nested Object to 1D Object
         Object.assign({}, ...Object.values(secrets).map((secret) => secret))
-    ).map(([key, value]) => { // Adding `enabled`, `type` properties to each object
-        return { enabled: true, key: key, value: value, type: 'text' }
-    })
+    ).map(([key, value]) => ({ enabled: true, key: key, value: value, type: 'text' })) // Adding `enabled`, `type` properties to each object
 
     envVars = [
         {
