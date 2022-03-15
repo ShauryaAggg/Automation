@@ -64,7 +64,7 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/Users/shaurya/Downloads/b2c_order_format.csv"
+							"src": "{{file_path}}"
 						}
 					]
 				},
